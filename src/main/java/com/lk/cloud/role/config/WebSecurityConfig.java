@@ -1,4 +1,4 @@
-package com.vcgdev.demo.config;
+package com.lk.cloud.role.config;
 
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

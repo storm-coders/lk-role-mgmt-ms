@@ -1,4 +1,4 @@
-package com.vcgdev.demo.config.auth;
+package com.lk.cloud.role.config.auth;
 
 import java.io.IOException;
 

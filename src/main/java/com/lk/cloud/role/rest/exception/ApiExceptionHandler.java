@@ -1,4 +1,4 @@
-package com.vcgdev.demo.rest.exception;
+package com.lk.cloud.role.rest.exception;
 import java.util.Collections;
 import java.util.Set;
 
