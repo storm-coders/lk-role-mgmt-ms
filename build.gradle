@@ -1,0 +1,206 @@
+buildscript {
+   repositories {
+     mavenCentral()
+     maven {
+        credentials {
+           username System.getenv("artifactory_user")
+           password System.getenv("artifactory_password")
+        }
+        url 'https://vsatdev.jfrog.io/artifactory/gradle-dev-local'
+     }
+   }
+
+   dependencies {
+      classpath('com.vcgdev.plugin:rapi-generator:1.3.3')
+   }
+}
+
+plugins {
+	id 'org.springframework.boot' version '2.4.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'net.ltgt.apt' version '0.21'
+	id 'jacoco'
+}
+
+ext {
+    karateVersion = '0.9.6'
+}
+
+apply plugin: 'com.vcgdev.plugin'
+apply plugin: 'net.ltgt.apt-idea'
+apply plugin: 'net.ltgt.apt-eclipse'
+
+group = 'com.vcgdev.demo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+        credentials {
+           username System.getenv("artifactory_user")
+           password System.getenv("artifactory_password")
+        }
+        url 'https://vsatdev.jfrog.io/artifactory/gradle-dev-local'
+    }
+}
+
+sourceSets {
+	integrationTest {
+		java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integrationTest/java')
+        }
+		resources {
+            srcDir file('src/integrationTest/java')
+            exclude '**/*.java'
+        }
+	}
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.security.oauth:spring-security-oauth2'
+	compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.3.RELEASE'
+	compile 'org.springframework.boot:spring-boot-starter-validation'
+	
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'org.postgresql:postgresql'
+	
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.7.0'    
+	compile 'com.vcgdev.common:common-rest:0.0.3'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+    
+	implementation "org.mapstruct:mapstruct:1.3.1.Final"
+    annotationProcessor "org.mapstruct:mapstruct-processor:1.3.1.Final"
+	
+	//karate 
+	integrationTestCompile "com.intuit.karate:karate-junit5:${karateVersion}"
+    integrationTestCompile "com.intuit.karate:karate-apache:${karateVersion}"
+    integrationTestCompile "net.masterthought:cucumber-reporting:3.8.0"
+
+
+	// test DB
+	runtimeOnly 'com.h2database:h2'
+
+	testAnnotationProcessor 'org.projectlombok:lombok'   
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:1.3.1.Final"
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+
+test {
+	useJUnitPlatform()
+    outputs.upToDateWhen { false }
+}
+
+
+task integrationTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+	outputs.upToDateWhen { false }
+ 
+}
+
+integrationTest {
+	useJUnitPlatform()
+	systemProperty "karate.options", System.properties.getProperty("karate.options")
+    systemProperty "karate.env", System.properties.getProperty("karate.env")
+	systemProperty "url", project.findProperty("url")
+	outputs.upToDateWhen { false }
+}
+
+task karateDebug(type: JavaExec) {
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'com.intuit.karate.cli.Main'
+}
+
+
+
+genRest{
+	basePackage = "com.vcgdev.demo"
+	servicePackage = "service"
+	repositoryPackage = "persistence"
+	entityPackage = "domain"
+	resourcePackage = "rest"
+	dtoPackage = "dto"
+	mapperPackage = "mappers"
+}
+
+// exclude from report
+def jacocoExclude = ['com/vcgdev/demo/domain/**',
+					 'com/vcgdev/demo/config/**',
+					 'com/vcgdev/demo/SpringProjectTemplateApplication**']
+
+// exclude from verification
+def jacocoExcludeVerification = ['com.vcgdev.demo.domain.**',
+								 'com.vcgdev.demo.config.**',
+								 'com.vcgdev.demo.SpringProjectTemplateApplication**']
+jacoco {
+	toolVersion = '0.8.5'
+	reportsDir = file('$buildDir/reports/jacoco')
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled false
+		csv.enabled false
+		html.destination file("${buildDir}/reports/jacoco")
+	}
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it,
+					exclude: jacocoExclude
+			)
+		}))
+	}
+}
+
+jacocoTestCoverageVerification {	
+	violationRules {
+
+		rule {
+			element = 'CLASS'
+			includes = ['com.vcgdev.demo.*']
+			excludes = jacocoExcludeVerification
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 0.9
+			}
+		}
+		
+		rule {
+			element = 'CLASS'
+			includes = ['com.vcgdev.demo*']
+			excludes = jacocoExcludeVerification
+			limit {
+				counter = 'BRANCH'
+				value = 'COVEREDRATIO'
+				minimum = 0.9
+			}
+		}
+	}
+}

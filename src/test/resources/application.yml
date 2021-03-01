@@ -1,0 +1,28 @@
+server:
+    port: 8081
+spring:
+    datasource:
+        url: jdbc:h2:mem:testdb
+        driverClassName: org.h2.Driver
+        username: sa
+        password: password
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        hibernate:
+            ddl-auto: none
+            naming:
+                implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+        show-sql: true
+        generate-ddl: true
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: true
+                default_schema: example
+
+com:
+    vcgdev:
+        crypto:
+            pwd: test-pwd
+            saltString: salt-test
+            ivSpec: ZNJpc2QM76o+DrCWowWPtw==

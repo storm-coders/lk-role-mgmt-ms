@@ -1,0 +1,11 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /example-demo/app/
+
+spring:
+  profiles:
+    active: ${ACTIVE_PROFILE}
+  jackson:
+    default-property-inclusion: non-null
+
