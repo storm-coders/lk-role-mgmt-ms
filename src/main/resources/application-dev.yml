@@ -2,19 +2,19 @@
 security:
   oauth2:
     resource:
-        tokenInfoUri: ${OAUTH_TOKEN_URI:http://localhost:8080/oauth/check_token/}
+        tokenInfoUri: ${OAUTH_TOKEN_URI:http://localhost:8080/v1/ms-services/security/oauth/check_token/}
         token-type: Bearer
     client:
-      client-id: ${OAUTH_CLIENT_ID:example}
+      client-id: ${OAUTH_CLIENT_ID:client-id-1}
       client-secret: ${OAUTH_CLIENT_SECRET:my-pwd-test}
 
 # Database Configurations
 spring:
     datasource:
         platform: postgres
-        url: ${DS_DB_URL:jdbc:postgresql://localhost:5432/example}
-        username: ${DS_USERNAME:example-usr}
-        password: ${DS_PWD:example-pwd}
+        url: ${DS_DB_URL:jdbc:postgresql://localhost:5432/txcluddb}
+        username: ${DS_USERNAME:msrlusrmgmt}
+        password: ${DS_PWD:NIknY$HqBBHx}
         driver-class-name: org.postgresql.Driver
     jpa:
         hibernate:
@@ -27,7 +27,7 @@ spring:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
                 format_sql: true
-                default_schema: ${DS_SCHEMA:test_schema}
+                default_schema: ${DS_SCHEMA:rlmgmt}
 
 com:
     vcgdev:
