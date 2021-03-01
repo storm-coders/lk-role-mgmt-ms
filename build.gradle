@@ -31,7 +31,7 @@ apply plugin: 'com.vcgdev.plugin'
 apply plugin: 'net.ltgt.apt-idea'
 apply plugin: 'net.ltgt.apt-eclipse'
 
-group = 'com.vcgdev.demo'
+group = 'com.lk.cloud.role'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -140,7 +140,7 @@ task karateDebug(type: JavaExec) {
 
 
 genRest{
-	basePackage = "com.vcgdev.demo"
+	basePackage = "com.lk.cloud.role"
 	servicePackage = "service"
 	repositoryPackage = "persistence"
 	entityPackage = "domain"
@@ -150,14 +150,14 @@ genRest{
 }
 
 // exclude from report
-def jacocoExclude = ['com/vcgdev/demo/domain/**',
-					 'com/vcgdev/demo/config/**',
-					 'com/vcgdev/demo/SpringProjectTemplateApplication**']
+def jacocoExclude = ['com/lk/cloud/role/domain/**',
+					 'com/lk/cloud/role/config/**',
+					 'com/lk/cloud/role/RoleManagementApplication**']
 
 // exclude from verification
-def jacocoExcludeVerification = ['com.vcgdev.demo.domain.**',
-								 'com.vcgdev.demo.config.**',
-								 'com.vcgdev.demo.SpringProjectTemplateApplication**']
+def jacocoExcludeVerification = ['com.lk.cloud.role.domain.**',
+								 'com.lk.cloud.role.config.**',
+								 'com.lk.cloud.role.RoleManagementApplication**']
 jacoco {
 	toolVersion = '0.8.5'
 	reportsDir = file('$buildDir/reports/jacoco')
@@ -183,7 +183,7 @@ jacocoTestCoverageVerification {
 
 		rule {
 			element = 'CLASS'
-			includes = ['com.vcgdev.demo.*']
+			includes = ['com.lk.cloud.role.*']
 			excludes = jacocoExcludeVerification
 			limit {
 				counter = 'LINE'
@@ -194,7 +194,7 @@ jacocoTestCoverageVerification {
 		
 		rule {
 			element = 'CLASS'
-			includes = ['com.vcgdev.demo*']
+			includes = ['com.lk.cloud.role.*']
 			excludes = jacocoExcludeVerification
 			limit {
 				counter = 'BRANCH'

@@ -1,4 +1,4 @@
-package com.vcgdev.demo.config.crypto;
+package com.lk.cloud.role.config.crypto;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;

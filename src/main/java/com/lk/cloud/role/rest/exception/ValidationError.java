@@ -1,4 +1,4 @@
-package com.vcgdev.demo.rest.exception;
+package com.lk.cloud.role.rest.exception;
 
 public enum ValidationError {
     
