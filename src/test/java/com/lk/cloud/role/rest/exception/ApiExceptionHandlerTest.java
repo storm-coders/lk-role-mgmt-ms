@@ -89,7 +89,7 @@ public class ApiExceptionHandlerTest {
 
         doReturn(violations).when(constraintViolationException).getConstraintViolations();
         doReturn("invalid-code").when(cve1).getMessage();
-        doReturn("0000").when(cve2).getMessage();
+        doReturn("4000").when(cve2).getMessage();
 
         ResponseEntity<ApiError> responseError = exceptionHandler.handleConstraintViolation(constraintViolationException);
         
@@ -108,7 +108,7 @@ public class ApiExceptionHandlerTest {
         
         when(result.getFieldErrors()).thenReturn(Arrays.asList(error1, error2));
         doReturn("unknow-code").when(error1).getDefaultMessage();
-        doReturn("0000").when(error2).getDefaultMessage();
+        doReturn("4000").when(error2).getDefaultMessage();
 
         ResponseEntity<Object> responseError = exceptionHandler
             .handleMethodArgumentNotValid(exception, headers, HttpStatus.BAD_REQUEST, request);
