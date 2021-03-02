@@ -152,11 +152,13 @@ genRest{
 // exclude from report
 def jacocoExclude = ['com/lk/cloud/role/domain/**',
 					 'com/lk/cloud/role/config/**',
+					 'com/lk/cloud/role/mappers/**',
 					 'com/lk/cloud/role/RoleManagementApplication**']
 
 // exclude from verification
 def jacocoExcludeVerification = ['com.lk.cloud.role.domain.**',
 								 'com.lk.cloud.role.config.**',
+								 'com.lk.cloud.role.mappers.**',
 								 'com.lk.cloud.role.RoleManagementApplication**']
 jacoco {
 	toolVersion = '0.8.5'
