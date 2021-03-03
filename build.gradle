@@ -32,7 +32,7 @@ apply plugin: 'net.ltgt.apt-idea'
 apply plugin: 'net.ltgt.apt-eclipse'
 
 group = 'com.lk.cloud.role'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 sourceCompatibility = '11'
 
 configurations {
