@@ -173,12 +173,12 @@ public class UserGroupServiceImpl implements UserGroupService {
             Integer page,Integer size,String columnToOrder, String orderType
         ) throws ServiceException {
             try {
-                Sort sort = Sort.by(Sort.Direction.ASC, (String) columnNames.get("id"));
+                Sort sort = Sort.by(Sort.Direction.ASC, columnNames.get("id"));
                 if (columnToOrder != null && orderType != null) {
                     if (orderType.equalsIgnoreCase("asc")) {
-                        sort = Sort.by(Sort.Direction.ASC, (String) columnNames.get(columnToOrder));
+                        sort = Sort.by(Sort.Direction.ASC, columnNames.get(columnToOrder));
                     }else {
-                        sort = Sort.by(Sort.Direction.DESC, (String) columnNames.get(columnToOrder));
+                        sort = Sort.by(Sort.Direction.DESC, columnNames.get(columnToOrder));
                     }
                 }
                 PageRequest request = PageRequest.of(page, size, sort);
@@ -192,5 +192,23 @@ public class UserGroupServiceImpl implements UserGroupService {
                 log.error("Not managed error in select transaction",ex);
                 throw new ServiceException(ErrorCode.INTERNAL);
             }
+    }
+
+    @Override
+    @Transactional(readOnly = false, rollbackFor = ServiceException.class)
+    public void deleteById(UUID groupId) throws ServiceException {
+        try {
+            if (!userGroupRepository.existsById(groupId)) {
+                log.error("No entity was found in DB {}", groupId);
+                throw new ServiceException(ErrorCode.NOT_FOUND);
+            }
+            userGroupRepository.deletePrivileges(groupId);
+            userGroupRepository.deleteById(groupId);
+        } catch (ServiceException se) {
+            throw se;
+        } catch (Exception e) {
+            log.error("Can not delete by id: {}", groupId, e);
+            throw new ServiceException(ErrorCode.INTERNAL);
+        }
     }
 }

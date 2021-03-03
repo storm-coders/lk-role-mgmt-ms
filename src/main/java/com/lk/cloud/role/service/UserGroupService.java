@@ -53,4 +53,5 @@ public interface UserGroupService {
         Integer page,Integer size,String columnToOrder, String orderType
     ) throws ServiceException ;
 
+    void deleteById(UUID groupId) throws ServiceException;
 }

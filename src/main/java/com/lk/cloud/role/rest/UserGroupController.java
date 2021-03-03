@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,7 +48,7 @@ public class UserGroupController {
        this.userGroupService = userGroupService;
     }
 
-    @ApiOperation(value = "Create new UserGroup", httpMethod = SwaggerConstants.HTTP_POST, response = UserGroupDTO.class )
+    @ApiOperation(value = "Create new Group", httpMethod = SwaggerConstants.HTTP_POST, response = UserGroupDTO.class )
     @ApiResponses(value = {
         @ApiResponse(code = HttpServletResponse.SC_CREATED, message = SwaggerConstants.CREATED_MESSAGE, response = UserGroupDTO.class),
         @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
@@ -72,7 +73,7 @@ public class UserGroupController {
     }
 
     
-    @ApiOperation(value = "Update UserGroup", httpMethod = SwaggerConstants.HTTP_PUT, response = UserGroupDTO.class )
+    @ApiOperation(value = "Update Group", httpMethod = SwaggerConstants.HTTP_PUT, response = UserGroupDTO.class )
     @ApiResponses(value = {
         @ApiResponse(code = HttpServletResponse.SC_OK, message = SwaggerConstants.OK_MESSAGE, response = UserGroupDTO.class),
         @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
@@ -98,7 +99,7 @@ public class UserGroupController {
     }
 
     
-    @ApiOperation(value = "Fetch UserGroup by Id", httpMethod = SwaggerConstants.HTTP_GET, response = UserGroupDTO.class)
+    @ApiOperation(value = "Fetch Group by Id", httpMethod = SwaggerConstants.HTTP_GET, response = UserGroupDTO.class)
     @ApiResponses(value = {
         @ApiResponse(code = HttpServletResponse.SC_OK, message = SwaggerConstants.OK_MESSAGE, response = UserGroupDTO.class),
         @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
@@ -113,7 +114,7 @@ public class UserGroupController {
     }
 
     
-    @ApiOperation(value = "Fetch list of UserGroup", httpMethod = SwaggerConstants.HTTP_GET, response = Collection.class)
+    @ApiOperation(value = "Fetch list of Group", httpMethod = SwaggerConstants.HTTP_GET, response = Collection.class)
     @ApiResponses(value = {
         @ApiResponse(code = HttpServletResponse.SC_OK, message = SwaggerConstants.OK_MESSAGE, response = Collection.class),
         @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
@@ -129,7 +130,7 @@ public class UserGroupController {
     }
 
     
-    @ApiOperation(value = "Fetch paginated result of UserGroup", httpMethod = SwaggerConstants.HTTP_GET, response = Page.class)
+    @ApiOperation(value = "Fetch paginated result of Group", httpMethod = SwaggerConstants.HTTP_GET, response = Page.class)
     @ApiResponses(value = {
         @ApiResponse(code = HttpServletResponse.SC_OK, message = SwaggerConstants.OK_MESSAGE, response = Page.class),
         @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
@@ -147,5 +148,23 @@ public class UserGroupController {
         ) throws ServiceException {
         Page<UserGroupDTO> paginatedResult = this.userGroupService.getPaginatedResult(page,size,columnToOrder,orderType);
         return new ResponseEntity<>(paginatedResult, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Delete Group by Id", httpMethod = SwaggerConstants.HTTP_DELETE)
+    @ApiResponses(value = {
+        @ApiResponse(code = HttpServletResponse.SC_OK, message = SwaggerConstants.OK_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_NOT_FOUND, message = "Not Found"),
+        @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = SwaggerConstants.INTERNAL_SERVER_ERROR_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_FORBIDDEN, message = SwaggerConstants.FORBIDDEN_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = SwaggerConstants.UNAUTHORIZED_MESSAGE)
+    })
+    @DeleteMapping("{id}")
+    @PreAuthorize(value = "hasRole('ROLE_DELETE_GROUP')")
+    public ResponseEntity<Void> deleteByIdAndUserId(
+        @PathVariable UUID id
+        ) throws ServiceException {
+            this.userGroupService.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
