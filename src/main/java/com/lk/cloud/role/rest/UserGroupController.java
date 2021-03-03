@@ -2,6 +2,7 @@ package com.lk.cloud.role.rest;
 
 import com.lk.cloud.role.config.SwaggerConfig;
 import com.lk.cloud.role.dto.UserGroupDTO;
+import com.lk.cloud.role.dto.UserGroupTreeDTO;
 import com.lk.cloud.role.service.UserGroupService;
 import com.vcgdev.common.exception.ErrorCode;
 import com.vcgdev.common.exception.ServiceException;
@@ -166,5 +167,21 @@ public class UserGroupController {
         ) throws ServiceException {
             this.userGroupService.deleteById(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(value = "Fetch Group Tree by Id", httpMethod = SwaggerConstants.HTTP_GET, response = UserGroupTreeDTO.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = HttpServletResponse.SC_OK, message = SwaggerConstants.OK_MESSAGE, response = UserGroupDTO.class),
+        @ApiResponse(code = HttpServletResponse.SC_BAD_REQUEST, message = SwaggerConstants.BAD_REQUEST_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = SwaggerConstants.INTERNAL_SERVER_ERROR_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_FORBIDDEN, message = SwaggerConstants.FORBIDDEN_MESSAGE),
+        @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = SwaggerConstants.UNAUTHORIZED_MESSAGE)
+    })    
+    @GetMapping(value="{id}/tree")
+    @PreAuthorize(value = "hasRole('ROLE_VIEW_GROUP_ID')")
+    public ResponseEntity<UserGroupTreeDTO> findTree(
+        @PathVariable UUID id,
+        @RequestParam(defaultValue = "false")Boolean toTop) throws ServiceException {        
+        return new ResponseEntity<>(this.userGroupService.getTree(id, toTop), HttpStatus.OK);
     }
 }
