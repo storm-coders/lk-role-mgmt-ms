@@ -20,4 +20,6 @@ public interface UserGroupRepository extends
 
     @Query(nativeQuery = true, value = "SELECT cast (module_privilege_id as varchar) id FROM rlmgmt.user_group_privilege WHERE user_group_id=?1")
     List<String> fetchPrivileges(UUID id);
+
+    List<UserGroup> findByParentId(UUID parentId);
 }

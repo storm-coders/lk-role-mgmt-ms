@@ -29,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import com.vcgdev.common.exception.ServiceException;
 import com.vcgdev.common.exception.ErrorCode;
 import com.lk.cloud.role.dto.UserGroupDTO;
+import com.lk.cloud.role.dto.UserGroupTreeDTO;
 import com.lk.cloud.role.service.UserGroupService;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,13 +54,11 @@ public class UserGroupControllerTest {
     private UserGroupDTO mockDTO() {
         UserGroupDTO dto = new UserGroupDTO();
         dto.setId(expectedId);
-        // TODO add properties
         return dto;
     }
 
     private void assertDTOProperties(UserGroupDTO dto) {
         assertEquals(expectedId, dto.getId());
-        //TODO add all dto properties
     }
 
     @Test
@@ -177,5 +176,9 @@ public class UserGroupControllerTest {
         assertDTOProperties(paginatedResult.getContent().get(0));
     }
 
-
+    @Test
+    void findTree_successResponse() throws Exception {
+        ResponseEntity<UserGroupTreeDTO> response = controller.findTree(expectedId, false);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,10 +18,10 @@ import com.vcgdev.common.exception.ServiceException;
 import com.vcgdev.common.exception.ErrorCode;
 import com.lk.cloud.role.service.impl.UserGroupServiceImpl;
 import com.lk.cloud.role.dto.UserGroupDTO;
+import com.lk.cloud.role.dto.UserGroupTreeDTO;
 import com.lk.cloud.role.mappers.UserGroupMapper;
 import com.lk.cloud.role.persistence.ModulePrivilegeRepository;
 import com.lk.cloud.role.persistence.UserGroupRepository;
-import com.google.common.util.concurrent.Service;
 import com.lk.cloud.role.domain.ModulePrivilege;
 import com.lk.cloud.role.domain.UserGroup;
 
@@ -406,4 +407,112 @@ public class UserGroupServiceTest {
         verify(repository).deletePrivileges(id);
     }
 
+    @Test
+    void getTree_NoParentsForTree_SingleItemShouldBeReturned() throws Exception {
+        UUID rootId = UUID.randomUUID();
+        when(repository.existsById(rootId))
+            .thenReturn(true);
+
+        when(repository.getOne(rootId))
+            .thenReturn(mockGroup(rootId, null));
+
+        UserGroupTreeDTO tree = service.getTree(rootId, true);
+        
+        assertNotNull(tree);
+        assertEquals("single node", tree.getName());
+        assertEquals(rootId, tree.getId());
+        assertNotNull(tree.getPrivileges());
+        assertEquals(1, tree.getPrivileges().size());
+        assertTrue(tree.getNodes().isEmpty());
+
+    }
+
+    @Test
+    void getTree_HasParent_TreeShouldBeReturned () throws Exception {
+        UUID leafId = UUID.randomUUID();
+        UUID id3 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        UUID root = UUID.randomUUID();
+
+        when(repository.existsById(leafId))
+            .thenReturn(true);
+
+        when(repository.getOne(leafId))
+            .thenReturn(mockGroup(leafId, id3));
+        
+        when(repository.getOne(id3))
+            .thenReturn(mockGroup(id3, id2));
+        
+        when(repository.getOne(id2))
+            .thenReturn(mockGroup(id2, root));
+        
+        when(repository.getOne(root))
+            .thenReturn(mockGroup(root, null));
+        
+        UserGroupTreeDTO tree = service.getTree(leafId, true);
+
+        // root
+        assertNotNull(tree);
+        assertEquals(root, tree.getId());
+        assertNotNull(tree.getNodes());
+        assertEquals(1, tree.getNodes().size());
+
+        // child1
+        UserGroupTreeDTO child1 = tree.getNodes().get(0);
+        assertEquals(id2, child1.getId());
+        assertNotNull(child1.getNodes());
+        assertEquals(1, child1.getNodes().size());
+
+        //child 2
+        UserGroupTreeDTO child2 = child1.getNodes().get(0);
+        assertEquals(id3, child2.getId());
+        assertNotNull(child2.getNodes());
+        assertEquals(1, child2.getNodes().size());
+        
+        //request id
+        UserGroupTreeDTO leaf = child2.getNodes().get(0);
+        assertEquals(leafId, leaf.getId());
+        assertNotNull(leaf.getNodes());
+        assertTrue(leaf.getNodes().isEmpty());
+
+    }
+
+    @Test
+    void getTree_toBottom_SingleTreeIsReturned() throws Exception {
+        UUID root = UUID.randomUUID();
+        when(repository.existsById(root))
+            .thenReturn(true);
+        when(repository.getOne(root))
+            .thenReturn(mockGroup(root, null));
+        
+        when(repository.findByParentId(root))
+            .thenReturn(
+                List.of(
+                    mockGroup(UUID.randomUUID(), root)
+                )
+            );
+        UserGroupTreeDTO tree = service.getTree(root, false);
+        assertNotNull(tree);
+        assertEquals(root, tree.getId());
+        assertFalse(tree.getNodes().isEmpty());
+    }
+
+    @Test
+    void getTree_EntityNotExists_NotFoundShouldBeThrown() {
+        ServiceException se = assertThrows(ServiceException.class, () -> service.getTree(id, false));
+        assertEquals(ErrorCode.NOT_FOUND, se.getCode());
+    }
+
+    private UserGroup mockGroup(UUID uuid, UUID parentId) {
+        UserGroup group = UserGroup.builder()
+        .id(uuid)
+        .parentId(parentId)
+        .name("single node")
+        .privileges(List.of(
+            ModulePrivilege.builder()
+            .id(UUID.randomUUID())
+            .build()
+        )).build();
+        return group;
+    }
 }

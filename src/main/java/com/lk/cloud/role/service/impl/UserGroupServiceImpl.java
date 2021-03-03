@@ -19,7 +19,9 @@ import java.util.stream.Collectors;
 import com.lk.cloud.role.service.UserGroupService;
 import com.vcgdev.common.exception.ErrorCode; 
 import com.vcgdev.common.exception.ServiceException;
+import com.lk.cloud.role.dto.PrivilegeDTO;
 import com.lk.cloud.role.dto.UserGroupDTO;
+import com.lk.cloud.role.dto.UserGroupTreeDTO;
 import com.lk.cloud.role.mappers.UserGroupMapper;
 import com.lk.cloud.role.persistence.ModulePrivilegeRepository;
 import com.lk.cloud.role.persistence.UserGroupRepository;
@@ -210,5 +212,65 @@ public class UserGroupServiceImpl implements UserGroupService {
             log.error("Can not delete by id: {}", groupId, e);
             throw new ServiceException(ErrorCode.INTERNAL);
         }
+    }
+
+    @Override
+    public UserGroupTreeDTO getTree(UUID groupId, boolean toTop) throws ServiceException {
+        if (!userGroupRepository.existsById(groupId)) {
+            log.error("Can not load tree from inexisting group {}", groupId);
+            throw new ServiceException(ErrorCode.NOT_FOUND);
+        }
+        return toTop ? toTop(groupId) : toBottom(groupId);
+    }
+
+    private UserGroupTreeDTO toTop(UUID groupId) {
+        UserGroup group = userGroupRepository.getOne(groupId);
+        UserGroupTreeDTO root = fromUserGroup(group);
+        if (group.getParentId() == null) {
+            return root;
+        } else {
+            return parent(group.getParentId(), root);
+        }
+    }
+
+    private UserGroupTreeDTO parent(UUID parentId, UserGroupTreeDTO child) {
+        UserGroup group = userGroupRepository.getOne(parentId);
+        UserGroupTreeDTO root = fromUserGroup(group);
+        root.getNodes().add(child);
+        if (group.getParentId() != null ) {
+                return parent(group.getParentId(), root);
+        } else {
+            return root;
+        }
+    }
+
+    private UserGroupTreeDTO toBottom(UUID groupId) {
+        UserGroup group = userGroupRepository.getOne(groupId);
+        List<UserGroup> children = userGroupRepository.findByParentId(groupId);
+        UserGroupTreeDTO root = fromUserGroup(group);
+        
+        children.parallelStream()
+            .forEach(child -> root.getNodes().add(fromUserGroup(child)));
+        return root;
+    }
+
+    private UserGroupTreeDTO fromUserGroup(UserGroup group) {
+        UserGroupTreeDTO dto = UserGroupTreeDTO
+                            .builder()
+                            .id(group.getId())
+                            .name(group.getName())
+                            .nodes(new ArrayList<>())
+                            .build();
+        List<PrivilegeDTO> privileges = group
+                                            .getPrivileges()
+                                            .parallelStream()
+                                            .map(p -> PrivilegeDTO.builder()
+                                                        .id(p.getId())
+                                                        .code(p.getCode())
+                                                        .description(p.getDescription())                                
+                                                        .build())
+                                            .collect(Collectors.toList());
+        dto.setPrivileges(privileges);
+        return dto;
     }
 }

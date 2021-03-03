@@ -2,6 +2,8 @@ package com.lk.cloud.role.service;
 
 import com.vcgdev.common.exception.ServiceException;
 import com.lk.cloud.role.dto.UserGroupDTO;
+import com.lk.cloud.role.dto.UserGroupTreeDTO;
+
 import java.util.Collection;
 import java.util.UUID;
 
@@ -54,4 +56,6 @@ public interface UserGroupService {
     ) throws ServiceException ;
 
     void deleteById(UUID groupId) throws ServiceException;
+
+    UserGroupTreeDTO getTree(UUID groupId, boolean fromTop) throws ServiceException;
 }
