@@ -21,6 +21,7 @@ public class SwaggerConfig {
     
     private final Contact contact = new Contact("Victor de la Cruz", "https://www.codementor.io/@vcg_cruz", ""); 
     public static final String TAG_MODULE = "Modules";
+    public static final String TAG_GROUPS = "Groups";
     @Bean
     public Docket productApi() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -29,7 +30,9 @@ public class SwaggerConfig {
                 .paths(any())
                 .build()
                 .apiInfo(metaData())
-                .tags(new Tag(TAG_MODULE, "Handle modules from application"));
+                .tags(new Tag(TAG_MODULE, "Handle modules from application"), //
+                        new Tag(TAG_GROUPS, "Handle user groups")
+                );
              
 	}
 	
