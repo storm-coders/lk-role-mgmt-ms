@@ -1,0 +1,37 @@
+# Security Constraints
+security:
+  oauth2:
+    resource:
+        tokenInfoUri: ${OAUTH_TOKEN_URI}
+        token-type: Bearer
+    client:
+      client-id: ${OAUTH_CLIENT_ID}
+      client-secret: ${OAUTH_CLIENT_SECRET}
+
+# Database Configurations
+spring:
+    datasource:
+        platform: postgres
+        url: ${DS_DB_URL}
+        username: ${DS_USERNAME}
+        password: ${DS_PWD}
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        hibernate:
+            ddl-auto: none
+            naming:
+                implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl                
+        show-sql: false
+        generate-ddl: false
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                format_sql: false
+                default_schema: ${DS_SCHEMA:rlmgmt}
+
+com:
+    vcgdev:
+        crypto:
+            pwd: ${CRYPTO_PWD_KEY}
+            saltString: ${CRYPTO_SALT_KEY}
+            ivSpec: ${CRYPTO_IV_SCPEC}

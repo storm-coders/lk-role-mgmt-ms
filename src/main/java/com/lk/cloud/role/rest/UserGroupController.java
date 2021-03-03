@@ -178,7 +178,7 @@ public class UserGroupController {
         @ApiResponse(code = HttpServletResponse.SC_UNAUTHORIZED, message = SwaggerConstants.UNAUTHORIZED_MESSAGE)
     })    
     @GetMapping(value="{id}/tree")
-    @PreAuthorize(value = "hasRole('ROLE_VIEW_GROUP_ID')")
+    @PreAuthorize(value = "isAuthenticated()")
     public ResponseEntity<UserGroupTreeDTO> findTree(
         @PathVariable UUID id,
         @RequestParam(defaultValue = "false")Boolean toTop) throws ServiceException {        
