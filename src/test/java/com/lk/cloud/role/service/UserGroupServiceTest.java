@@ -2,6 +2,7 @@ package com.lk.cloud.role.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,7 +10,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -20,6 +20,7 @@ import com.lk.cloud.role.dto.UserGroupDTO;
 import com.lk.cloud.role.mappers.UserGroupMapper;
 import com.lk.cloud.role.persistence.ModulePrivilegeRepository;
 import com.lk.cloud.role.persistence.UserGroupRepository;
+import com.google.common.util.concurrent.Service;
 import com.lk.cloud.role.domain.ModulePrivilege;
 import com.lk.cloud.role.domain.UserGroup;
 
@@ -44,7 +45,6 @@ import org.springframework.data.domain.Page;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -231,7 +231,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void updateUserGroup_entityExistsInDB_successTransaction() throws Exception {
+    void updateUserGroup_entityExistsInDB_successTransaction() throws Exception {
         when(repository.existsById(id))
            .thenReturn(Boolean.TRUE);
         
@@ -251,7 +251,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void updateUserGroup_errorFetchingFromDB_customExceptionShouldBeThrown() throws Exception {
+    void updateUserGroup_errorFetchingFromDB_customExceptionShouldBeThrown() throws Exception {
         when(repository.existsById(id))
            .thenThrow(new RuntimeException("Not managed exception"));
 
@@ -268,7 +268,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void findById_entityNotExists_customExceptionShouldBeThrown() throws Exception {
+    void findById_entityNotExists_customExceptionShouldBeThrown() throws Exception {
         when(repository.existsById(id))
            .thenReturn(Boolean.FALSE);
 
@@ -284,7 +284,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void findById_errorFromDB_customExceptionShouldBeThrown() throws Exception {
+    void findById_errorFromDB_customExceptionShouldBeThrown() throws Exception {
         when(repository.existsById(id))
            .thenThrow(new RuntimeException("Not managed error"));
 
@@ -300,7 +300,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void findById_entityIsInDB_DTOIsReturned() throws Exception {
+    void findById_entityIsInDB_DTOIsReturned() throws Exception {
         when(repository.existsById(id))
             .thenReturn(Boolean.TRUE);
         entity.setId(id);
@@ -318,7 +318,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void findAll_exceptionIsThrown_customExceptionShouldBeThrown() throws Exception {
+    void findAll_exceptionIsThrown_customExceptionShouldBeThrown() throws Exception {
 
         when(repository.findAll())
             .thenThrow(new RuntimeException("Invalid transaction"));
@@ -332,7 +332,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void findAll_successTransaction_dtoListIsReturned() throws Exception {
+    void findAll_successTransaction_dtoListIsReturned() throws Exception {
         when(repository.findAll())
             .thenReturn(Collections.singletonList(entity));
 
@@ -341,7 +341,7 @@ public class UserGroupServiceTest {
     }
 
     @Test
-    public void getPaginatedResult_invalidParametersProvided_customExceptionIsThrown () throws Exception {        
+    void getPaginatedResult_invalidParametersProvided_customExceptionIsThrown () throws Exception {        
         ServiceException cte = assertThrows(ServiceException.class, () -> {
             service.getPaginatedResult(0, 10, "invalidColumn", "invalidOrder");
         });
@@ -370,6 +370,40 @@ public class UserGroupServiceTest {
             Arguments.of(1, 10, "id", "desc"),
             Arguments.of(1, 10, "is", null)
         );
+    }
+
+    @Test
+    void deleteById_GroupNotFound_ExceptionShouldBeThrown() {
+
+        ServiceException se = assertThrows(ServiceException.class, () -> service.deleteById(id));
+
+        assertEquals(ErrorCode.NOT_FOUND, se.getCode());
+        verify(repository, never()).deleteById(id);
+        verify(repository, never()).deletePrivileges(id);
+    }
+
+    @Test
+    void deleteByID_ExceptionCatch_CustomExceptionIsThrown() {
+
+        doThrow(new RuntimeException())
+            .when(repository).existsById(id);
+        ServiceException se = assertThrows(ServiceException.class, () -> service.deleteById(id));
+
+        assertEquals(ErrorCode.INTERNAL, se.getCode());
+        verify(repository, never()).deleteById(id);
+        verify(repository, never()).deletePrivileges(id);
+    }
+
+    @Test
+    void deleteById_SuccessTransaction() throws ServiceException {
+
+        when(repository.existsById(id))
+            .thenReturn(true);
+
+        service.deleteById(id);
+
+        verify(repository).deleteById(id);
+        verify(repository).deletePrivileges(id);
     }
 
 }
