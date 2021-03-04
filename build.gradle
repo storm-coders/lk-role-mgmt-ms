@@ -85,6 +85,7 @@ dependencies {
 	
 	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.7.0'    
 	compile 'com.vcgdev.common:common-rest:0.0.3'
+	compile 'com.lk.cloud:lk-role-mgmt-dto:0.0.1'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
