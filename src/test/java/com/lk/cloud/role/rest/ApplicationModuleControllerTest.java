@@ -149,10 +149,10 @@ public class ApplicationModuleControllerTest {
     @Test
     public void findAll_serviceReturnsCollection_responseOK() throws Exception {
         ApplicationModuleDTO resultFromService = mockDTO();
-        when(service.findAll())
+        when(service.findAll(Boolean.TRUE))
             .thenReturn(Collections.singletonList(resultFromService));
 
-        ResponseEntity<Collection<ApplicationModuleDTO>>   responseResult = controller.findAll();
+        ResponseEntity<Collection<ApplicationModuleDTO>>   responseResult = controller.findAll(Boolean.TRUE);
 
         assertNotNull(responseResult);
         assertEquals(HttpStatus.OK, responseResult.getStatusCode());

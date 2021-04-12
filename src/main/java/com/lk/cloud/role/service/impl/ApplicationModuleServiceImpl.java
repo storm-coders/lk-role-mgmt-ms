@@ -158,11 +158,18 @@ public class ApplicationModuleServiceImpl implements ApplicationModuleService {
     * Get List of all ApplicationModule
     * throws ServiceException if an error happens in select transaction
     */
-    public Collection<ApplicationModuleDTO> findAll() throws ServiceException {
+    public Collection<ApplicationModuleDTO> findAll(Boolean expand) throws ServiceException {
         try{
+            final Boolean expandResult = expand == null ? Boolean.FALSE : expand;
+
             return applicationModuleRepository.findAll()
             .stream()
-            .map(applicationModuleMapper::fromEntitySummary)
+            .map(entity -> {
+                if(expandResult) {
+                    return applicationModuleMapper.fromEntity(entity);
+                }
+                return applicationModuleMapper.fromEntitySummary(entity);
+            })
             .collect(Collectors.toList());
         }catch(Exception ex){
             log.error("Not managed error in select transaction", ex);

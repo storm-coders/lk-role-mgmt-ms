@@ -39,7 +39,7 @@ public interface ApplicationModuleService {
     * Get List of all ApplicationModule
     * throws ServiceException if an error happens in select transaction
     */
-    Collection<ApplicationModuleDTO> findAll() throws ServiceException;
+    Collection<ApplicationModuleDTO> findAll(Boolean expand) throws ServiceException;
 
     /**
     * Get paginated result
