@@ -318,7 +318,7 @@ public class ApplicationModuleServiceTest {
             .thenThrow(new RuntimeException("Invalid transaction"));
 
         ServiceException cte = assertThrows(ServiceException.class, () -> {
-            service.findAll();
+            service.findAll(Boolean.FALSE);
         });
 
         assertEquals(ErrorCode.INTERNAL, cte.getCode());
@@ -330,7 +330,16 @@ public class ApplicationModuleServiceTest {
         when(repository.findAll())
             .thenReturn(Collections.singletonList(entity));
 
-        Collection<ApplicationModuleDTO> dtoList = service.findAll();
+        Collection<ApplicationModuleDTO> dtoList = service.findAll(Boolean.TRUE);
+        assertEquals(1, dtoList.size());
+    }
+
+    @Test
+    public void findAll_ExpandIsFalse_dtoListIsReturned() throws Exception {
+        when(repository.findAll())
+            .thenReturn(Collections.singletonList(entity));
+
+        Collection<ApplicationModuleDTO> dtoList = service.findAll(Boolean.FALSE);
         assertEquals(1, dtoList.size());
     }
 

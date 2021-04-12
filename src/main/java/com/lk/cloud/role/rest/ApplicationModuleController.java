@@ -123,8 +123,8 @@ public class ApplicationModuleController {
     })
     @GetMapping()
     @PreAuthorize(value = "hasRole('ROLE_FETCH_MODULES')") 
-    public ResponseEntity<Collection<ApplicationModuleDTO>> findAll() throws ServiceException {        
-        Collection<ApplicationModuleDTO> dtoList = this.applicationModuleService.findAll();
+    public ResponseEntity<Collection<ApplicationModuleDTO>> findAll(@RequestParam(required=false)Boolean expand) throws ServiceException {        
+        Collection<ApplicationModuleDTO> dtoList = this.applicationModuleService.findAll(expand);
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
