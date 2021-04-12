@@ -1,5 +1,5 @@
 server:
-  port: 8082
+  port: 8080
   servlet:
     context-path: /v1/ms-services/application-roles/
 
@@ -11,4 +11,6 @@ spring:
   jpa:
     properties:
       hibernate.jdbc.time_zone: UTC
+  application:
+    name: app-roles
 
